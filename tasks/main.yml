@@ -1,0 +1,29 @@
+---
+- name: Include secrets from ansible/secrets/local.yml
+  include_vars: "{{ ansible_dir }}/secrets/newrelic.yml"
+
+- name: Make sure 'newrelic_license' var is defined
+  fail: msg="'newrelic_license' variable not defined - add it to ansible/secrets/newrelic.yml"
+  when: newrelic_license is undefined
+  
+- name: Make sure 'newrelic.app_name' var is defined
+  fail: msg="newrelic.app_name' variable not defined - add it to the ansible/inventory/host_vars/<this host>.yml"
+  when: newrelic.app_name is undefined
+  
+- name: default extra_params to empty string if empty
+  set_fact:
+    newrelic:
+      extra_params: ""
+  when: newrelic.extra_params is undefined
+  
+- name: Setup New Relic on Ubuntu
+  script: "{{ ansible_dir }}/roles/acromedia.newrelic/scripts/install-new-relic-ubuntu.sh {{ newrelic_license }} {{ newrelic.app_name }} {{ newrelic.extra_params }}"
+  register: command_result
+  changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
+  when: ansible_os_family == 'Debian'
+ 
+- name: Setup New Relic on RedHat
+  script: "{{ ansible_dir }}/roles/acromedia.newrelic/scripts/install-new-relic-redhat.sh {{ newrelic_license }} {{ newrelic.app_name }} {{ newrelic.extra_params }}"
+  register: command_result
+  changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
+  when: ansible_os_family == 'Redhat'

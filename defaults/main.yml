@@ -1,0 +1,12 @@
+---
+# This is an example file of what to include in the inventory/host_vars/<THE HOST>.yml file
+
+#newrelic:
+  # These are the extra parameters to pass in to the scripts.
+  # --php      - Install PHP application monitoring
+  # --sysmond  - Install 'Servers' product (deprecated; only works on Telus servers)"
+  # --infra    - Install 'Infrastructure' product (for Acro servers
+  #extras_params: "--php --infra"
+  
+  # The new relic app name. App name requires quoted quotes if it contains spaces, ie "'My Sweet Server'"
+  #app_name: "canadasecure04"
