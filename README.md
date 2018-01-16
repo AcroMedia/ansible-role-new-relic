@@ -1,19 +1,19 @@
 newrelic
 ======
 
-Installs and configures Acro's new relic account on servers.
+Installs and configures new relic on servers.
 
 
 Requirements
 ------------
 * Redhat or Ubuntu
-* The variables defined in defaults/main.yml to be placed in the inventory/host_vars/<YOUR HOST>.yml.
-  For more info, read the defaults/main.yml
 
 Role Variables
 --------------
 
-n/a
+* Host variables need to be made for each host this role will be applied to. The variables are defined in `example_host_vars/example_host.yml`
+
+* Do not ever commit secrets to the repository. The actual licenses should be stored in `ansible/secrets/newrelic.yml` which is gitignored, and referenced from the host variable file. Check the `example_secrets/example_newrelic.yml` for an example.
 
 Dependencies
 ------------

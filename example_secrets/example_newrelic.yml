@@ -1,0 +1,3 @@
+---
+# This is an example of what to include in an UNCOMITTED ansible/secrets/newrelic.yml file.
+newrelic_example_license: asdf123456789
