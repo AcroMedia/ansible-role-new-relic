@@ -25,7 +25,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role: acromedia.deploy-infra-scripts }
+         - { role: acromedia.newrelic }
 
 License
 -------
