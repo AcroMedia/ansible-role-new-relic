@@ -125,21 +125,32 @@ function main () {
       else
         DEBIAN_FRONTEND=noninteractive apt-get -y install newrelic-php5
         newrelic-install install
+      fi
+      if test -f /etc/php/5.6/mods-available/newrelic.ini; then
+        sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/5.6/mods-available/newrelic.ini
+        sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/5.6/mods-available/newrelic.ini
+      fi
+      
+      if test -f /etc/php/7.0/mods-available/newrelic.ini; then
         sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/7.0/mods-available/newrelic.ini
         sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/7.0/mods-available/newrelic.ini
-
-        # These aren't needed at all.
-        find /etc/php -mindepth 4 -name newrelic.ini -path '*/conf.d/*' -delete
-
-        # Restart service(s)
-        test -f /etc/php5/fpm/php.ini && service php5-fpm restart
-        test -f /etc/php/5.6/fpm/php.ini && service php5.6-fpm restart
-        test -f /etc/php/7.0/fpm/php.ini && service php7.0-fpm restart
-        test -f /etc/php/7.1/fpm/php.ini && service php7.1-fpm restart
-        test -f /usr/sbin/nginx && service nginx restart
-        test -f /usr/sbin/apache2 && service apache2 restart
-
       fi
+      
+      if test -f /etc/php/7.1/mods-available/newrelic.ini; then
+        sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/7.1/mods-available/newrelic.ini
+        sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/7.1/mods-available/newrelic.ini
+      fi
+
+      # These aren't needed at all.
+      find /etc/php -mindepth 4 -name newrelic.ini -path '*/conf.d/*' -delete
+
+      # Restart service(s)
+      test -f /etc/php5/fpm/php.ini && service php5-fpm restart
+      test -f /etc/php/5.6/fpm/php.ini && service php5.6-fpm restart
+      test -f /etc/php/7.0/fpm/php.ini && service php7.0-fpm restart
+      test -f /etc/php/7.1/fpm/php.ini && service php7.1-fpm restart
+      test -f /usr/sbin/nginx && service nginx restart
+      test -f /usr/sbin/apache2 && service apache2 restart
     else
       echo "Pass '--php' to install PHP application monitoring."
     fi
