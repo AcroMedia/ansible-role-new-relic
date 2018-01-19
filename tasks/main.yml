@@ -26,4 +26,4 @@
   script: "{{ ansible_dir }}/roles/acromedia.newrelic/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} {{ newrelic_app_name }} {{ newrelic_extra_params }}"
   register: command_result
   changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
-  when: ansible_os_family == 'Redhat'
+  when: ansible_os_family == 'RedHat'
