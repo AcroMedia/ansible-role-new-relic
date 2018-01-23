@@ -1,0 +1,9 @@
+---
+# These are the extra parameters to pass in to the scripts.
+# --php      - Install PHP application monitoring
+# --sysmond  - Install 'Servers' product (deprecated; only works on Telus servers)"
+# --infra    - Install 'Infrastructure' product (for Acro servers
+newrelic_extra_params: "--php --infra"
+
+# The new relic app name. App name requires quoted quotes if it contains spaces, ie "'My Sweet Server'"
+newrelic_app_name: "{{ ansible_fqdn }}"

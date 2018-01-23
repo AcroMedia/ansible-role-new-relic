@@ -10,6 +10,9 @@ Requirements
 
 Role Variables
 --------------
+* newrelic_extras_params: These are the extra parameters to pass in to the scripts.
+
+* newrelic_app_name: The default app name for the server.
 
 * Host variables need to be made for each host this role will be applied to. The variables are defined in `example_host_vars/example_host.yml`
 
