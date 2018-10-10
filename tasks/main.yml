@@ -5,11 +5,11 @@
 - name: Make sure 'newrelic_license_key' var is defined
   fail: msg="'newrelic_license_key' variable not defined - add it to the ansible/inventory/host_vars/<this host>.yml (DO NOT COMMIT THE ACTUAL LICENSE, READ THE ROLE's README.md FOR MORE INFO)"
   when: newrelic_license_key is undefined
-  
+
 - name: Make sure 'newrelic_app_name' var is defined
   fail: msg="newrelic_app_name' variable not defined - add it to the ansible/inventory/host_vars/<this host>.yml"
   when: newrelic_app_name is undefined
-  
+
 - name: default extra_params to empty string if empty
   set_fact:
     newrelic:
@@ -17,13 +17,17 @@
   when: newrelic_extra_params is undefined
 
 - name: Setup New Relic on Ubuntu
-  script: "{{ ansible_dir }}/roles/acromedia.newrelic/scripts/install-new-relic-ubuntu.sh {{ newrelic_license_key }} {{ newrelic_app_name }} {{ newrelic_extra_params }}"
+  script: >
+    {{ role_path }}/scripts/install-new-relic-ubuntu.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+  args:
+    executable: /bin/bash
   register: command_result
   changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
   when: ansible_os_family == 'Debian'
 
 - name: Setup New Relic on RedHat
-  script: "{{ ansible_dir }}/roles/acromedia.newrelic/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} {{ newrelic_app_name }} {{ newrelic_extra_params }}"
+  script: >
+    {{ role_path}}/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
   register: command_result
   changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
   when: ansible_os_family == 'RedHat'
