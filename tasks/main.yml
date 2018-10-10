@@ -22,12 +22,12 @@
   args:
     executable: /bin/bash
   register: command_result
-  changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
+  changed_when: command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
   when: ansible_os_family == 'Debian'
 
 - name: Setup New Relic on RedHat
   script: >
     {{ role_path}}/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
   register: command_result
-  changed_when: "'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout"
+  changed_when: command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
   when: ansible_os_family == 'RedHat'
