@@ -6,11 +6,10 @@ function usage () {
   echo ""
   echo "Options:"
   echo "  --php      - Install PHP application monitoring"
-  echo "  --sysmond  - Install 'Servers' product (deprecated; only works on Telus servers)"
-  echo "  --infra    - Install 'Infrastructure' product (for Acro servers)"
+  echo "  --infra    - Install 'Infrastructure' product"
   echo ""
   echo "Example (deploying to a server; pay close attention - this is not a mistake): "
-  echo "  ssh SERVER \"sudo bash -s\" -- < ./install-new-relic.sh YOUR_LICENSE_KEY_HERE \"'App name requires quoted quotes if it contains spaces'\" --sysmond --php"
+  echo "  ssh SERVER \"sudo bash -s\" -- < ./install-new-relic.sh YOUR_LICENSE_KEY_HERE \"'App name requires quoted quotes if it contains spaces'\" --infra --php"
 }
 
 function main () {
@@ -33,7 +32,7 @@ function main () {
   fi
 
   require_root
-  
+
   export NR_INSTALL_KEY="$1"
   echo "NR_INSTALL_KEY: $NR_INSTALL_KEY"
   if [ "${#NR_INSTALL_KEY}" -ne 40 ]; then
@@ -52,7 +51,7 @@ function main () {
   export NR_INSTALL_SILENT=1
 
 
-  # Repository for Sysmond + PHP Agent
+  # Repository for PHP Agent
   if test -e /etc/apt/sources.list.d/newrelic.list; then
     echo "Apt repo already exists"
   else
@@ -62,27 +61,6 @@ function main () {
     wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
   fi
   apt-get update
-
-
-  # Sysmond
-  if optional-parameter-exists "--sysmond" "$@"; then
-    if dpkg --list |grep newrelic-sysmond; then
-      echo "New Relic 'Servers' is already installed."
-    else
-
-      # Install
-      apt-get install newrelic-sysmond -y
-
-      # Set license key
-      nrsysmond-config --set license_key=$NR_INSTALL_KEY
-
-      # Start service
-      systemctl start newrelic-sysmond || /etc/init.d/newrelic-sysmond start
-    fi
-  else
-    echo "Pass '--sysmond' to install New Relic Servers."
-  fi
-
 
   # Infrastructure
   if optional-parameter-exists "--infra" "$@"; then
@@ -130,12 +108,12 @@ function main () {
         sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/5.6/mods-available/newrelic.ini
         sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/5.6/mods-available/newrelic.ini
       fi
-      
+
       if test -f /etc/php/7.0/mods-available/newrelic.ini; then
         sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/7.0/mods-available/newrelic.ini
         sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/7.0/mods-available/newrelic.ini
       fi
-      
+
       if test -f /etc/php/7.1/mods-available/newrelic.ini; then
         sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/7.1/mods-available/newrelic.ini
         sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/7.1/mods-available/newrelic.ini
@@ -159,7 +137,7 @@ function main () {
   fi
 
   echo "All finished."
-  
+
 }
 
 function require_root() {

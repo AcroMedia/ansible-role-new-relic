@@ -6,11 +6,10 @@ function usage () {
   echo ""
   echo "Options:"
   echo "  --php      - Install PHP application monitoring"
-  echo "  --sysmond  - Install 'Servers' product (deprecated; only works on Telus servers)"
   echo "  --infra    - Install 'Infrastructure' product (for Acro servers)"
   echo ""
   echo "Example (deploying to a server; pay close attention - this is not a mistake): "
-  echo "  ssh SERVER \"sudo bash -s\" -- < ./install-new-relic.sh YOUR_LICENSE_KEY_HERE \"'App name requires quoted quotes if it contains spaces'\" --sysmond --php"
+  echo "  ssh SERVER \"sudo bash -s\" -- < ./install-new-relic.sh YOUR_LICENSE_KEY_HERE \"'App name requires quoted quotes if it contains spaces'\" --infra --php"
 }
 
 function main () {
@@ -31,7 +30,7 @@ function main () {
     usage
     exit 1
   fi
-  
+
   require_root
 
   export NR_INSTALL_KEY="$1"
@@ -52,35 +51,12 @@ function main () {
   export NR_INSTALL_SILENT=1
 
 
-  # Repository for Sysmond + PHP Agent
+  # Repository for PHP Agent
   if test -e /etc/yum.repos.d/newrelic.repo; then
     echo "New relic repo already exists"
   else
     # Configure repo
     rpm -Uvh https://yum.newrelic.com/pub/newrelic/el5/x86_64/newrelic-repo-5-3.noarch.rpm
-  fi
-
-
-
-
-
-  # Sysmond
-  if /usr/local/bin/optional-parameter-exists "--sysmond" "$@"; then
-    if rpm -qa | grep newrelic-sysmond; then
-      echo "New Relic 'Servers' is already installed."
-    else
-
-      # Install
-      yum install -y newrelic-sysmond
-
-      # Set license key
-      nrsysmond-config --set license_key=$NR_INSTALL_KEY
-
-      # Start service
-      /etc/init.d/newrelic-sysmond start
-    fi
-  else
-    echo "Pass '--sysmond' to install New Relic Servers."
   fi
 
 
@@ -146,7 +122,7 @@ function main () {
 
 
   echo "All finished."
-  
+
 }
 
 function require_root() {
