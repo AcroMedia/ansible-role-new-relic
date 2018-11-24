@@ -1,7 +1,6 @@
 ---
 # These are the extra parameters to pass in to the scripts.
 # --php      - Install PHP application monitoring
-# --sysmond  - Install 'Servers' product (deprecated; only works on Telus servers)"
 # --infra    - Install 'Infrastructure' product (for Acro servers
 newrelic_extra_params: "--php --infra"
 

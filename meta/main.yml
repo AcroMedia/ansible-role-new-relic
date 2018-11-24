@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Dale Anderosn
+  description: Install New Relic PHP + Infrastructure agents
+  company: Acro Media Inc.
+  license: For internal use only
+  min_ansible_version: 2.0
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+    - xenial
+    - bionic
+  galaxy_tags: []
+dependencies: []

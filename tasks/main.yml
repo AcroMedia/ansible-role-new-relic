@@ -1,7 +1,4 @@
 ---
-- name: Include secrets from ansible/secrets/local.yml
-  include_vars: "{{ ansible_dir }}/secrets/newrelic.yml"
-
 - name: Make sure 'newrelic_license_key' var is defined
   fail: msg="'newrelic_license_key' variable not defined - add it to the ansible/inventory/host_vars/<this host>.yml (DO NOT COMMIT THE ACTUAL LICENSE, READ THE ROLE's README.md FOR MORE INFO)"
   when: newrelic_license_key is undefined
