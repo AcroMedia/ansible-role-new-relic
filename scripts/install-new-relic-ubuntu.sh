@@ -14,13 +14,6 @@ function usage () {
 
 function main () {
 
-  # If you're missing optional-parameter-exists, install it with
-  # git clone git@git.acromedia.com:acro/infrastructure.git
-  # cd infrastructure/scripts
-  # ./deploy.sh SERVER_NAME
-  require_script /usr/local/bin/optional-parameter-exists
-  require_script /usr/local/bin/backdir
-
   grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release || {
     err "This script is only for Ubuntu servers."
     exit 1
@@ -44,7 +37,7 @@ function main () {
 
 
   # Before we start,
-  /usr/local/bin/backdir /etc
+  backdir /etc
 
 
   # Does this really do anything?
@@ -63,7 +56,7 @@ function main () {
   apt-get update
 
   # Infrastructure
-  if optional-parameter-exists "--infra" "$@"; then
+  if optional_parameter_exists "--infra" "$@"; then
 
     if dpkg --list |grep newrelic-infra; then
       echo "New Relic 'Infrastructure' is already installed."
@@ -74,7 +67,7 @@ function main () {
 
       # Repository
       source /etc/lsb-release
-      grep https://download.newrelic.com/infrastructure_agent/linux/apt /etc/apt/sources.list.d/newrelic-infra.list || printf "deb [arch=amd64] https://download.newrelic.com/infrastructure_agent/linux/apt $DISTRIB_CODENAME main" | tee -a /etc/apt/sources.list.d/newrelic-infra.list
+      grep https://download.newrelic.com/infrastructure_agent/linux/apt /etc/apt/sources.list.d/newrelic-infra.list || printf "deb [arch=amd64] https://download.newrelic.com/infrastructure_agent/linux/apt %s main\n" "$DISTRIB_CODENAME"| tee -a /etc/apt/sources.list.d/newrelic-infra.list
 
       apt-get update
 
@@ -97,38 +90,40 @@ function main () {
 
   # PHP agent
   if test -e /etc/php || test -e /etc/php5; then
-    if optional-parameter-exists "--php" "$@"; then
+    if optional_parameter_exists "--php" "$@"; then
       if dpkg --list |grep newrelic-php5; then
         echo "NR PHP APM appears to already be installed."
       else
         DEBIAN_FRONTEND=noninteractive apt-get -y install newrelic-php5
         newrelic-install install
       fi
-      if test -f /etc/php/5.6/mods-available/newrelic.ini; then
-        sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/5.6/mods-available/newrelic.ini
-        sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/5.6/mods-available/newrelic.ini
-      fi
-
-      if test -f /etc/php/7.0/mods-available/newrelic.ini; then
-        sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/7.0/mods-available/newrelic.ini
-        sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/7.0/mods-available/newrelic.ini
-      fi
-
-      if test -f /etc/php/7.1/mods-available/newrelic.ini; then
-        sed -i "s/newrelic.license = \"/newrelic.license = \"$NR_INSTALL_KEY/" /etc/php/7.1/mods-available/newrelic.ini
-        sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php/7.1/mods-available/newrelic.ini
-      fi
 
       # These aren't needed at all.
       find /etc/php -mindepth 4 -name newrelic.ini -path '*/conf.d/*' -delete
 
-      # Restart service(s)
-      test -f /etc/php5/fpm/php.ini && service php5-fpm restart
-      test -f /etc/php/5.6/fpm/php.ini && service php5.6-fpm restart
-      test -f /etc/php/7.0/fpm/php.ini && service php7.0-fpm restart
-      test -f /etc/php/7.1/fpm/php.ini && service php7.1-fpm restart
-      test -f /usr/sbin/nginx && service nginx restart
-      test -f /usr/sbin/apache2 && service apache2 restart
+      # Add license key + app name to config files
+      set -x
+      local PHP_VERSIONS
+      PHP_VERSIONS=$(mktemp)
+      find /etc/php -mindepth 1 -maxdepth 1 -type d -name '?.?' \( ! -name "$(printf "*\n*")" \) -exec basename {} \; > "$PHP_VERSIONS"
+      while IFS= read -r PHP_VER; do
+        echo "PHP_VER=$PHP_VER"
+        local INI="/etc/php/${PHP_VER}/mods-available/newrelic.ini"
+        if [ -f "/etc/php/$PHP_VER/mods-available/newrelic.ini" ] ; then
+          echo "Adding License and app name"
+          sed -i "s/newrelic.license = \"\"/newrelic.license = \"$NR_INSTALL_KEY\"/" "/etc/php/$PHP_VER/mods-available/newrelic.ini"
+          sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" "/etc/php/$PHP_VER/mods-available/newrelic.ini"
+        else
+          echo "File not found $INI"
+        fi
+        # Restart PHP
+        [ -f "/etc/php/$PHP_VER/fpm/php.ini" ]  && service "php${PHP_VER}-fpm" restart
+      done < "$PHP_VERSIONS"
+
+      # Restart Web service
+      [ -x /usr/sbin/nginx ] && service nginx restart
+      [ -x /usr/sbin/apache2 ] && service apache2 restart
+      set +x
     else
       echo "Pass '--php' to install PHP application monitoring."
     fi
@@ -190,5 +185,47 @@ function cerr () {
 BOLD=$(tput bold 2>/dev/null) || BOLD='' # Dont make noise if tput isn't available.
 UNBOLD=$(tput sgr0 2>/dev/null) || UNBOLD='' # Dont make noise if tput isn't available.
 
+
+readonly NEEDLE_FOUND=0
+readonly NEEDLE_NOT_FOUND=1
+readonly MISSING_HAYSTACK=2
+
+function optional_parameter_exists() {
+  if [[ $# -lt 1 ]]; then
+    fatal "Nevermind the haystack, I didn't even get the needle. Whoever called me did it the wrong way."
+    exit $MISSING_HAYSTACK
+  fi
+  if [[ $# -lt 2 ]]; then
+    warn "I received no haystack to look through."
+  fi
+  local PARAM_NAME_PATTERN=${1}; shift
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+      "${PARAM_NAME_PATTERN}")
+        return $NEEDLE_FOUND;
+        ;;
+      *)
+        # unknown / ignored option
+        true
+        ;;
+    esac
+    shift || break
+  done
+  return $NEEDLE_NOT_FOUND
+}
+
+function backdir () {
+  local DIR_TO_BACK_UP=$1
+  local DIR_WITHOUT_LEADING_SLASH
+  DIR_WITHOUT_LEADING_SLASH=$(echo "$DIR_TO_BACK_UP"| sed -e 's/^\///')
+  local ARCHIVEDIR=/var/backups
+  local DATESTAMP
+  DATESTAMP="$(date +%Y-%m-%d.%H%M%S.%3N)" || DATESTAMP="$(date +%Y-%m-%d.%H%M%S)"
+  local TARFILE
+  TARFILE="$ARCHIVEDIR/$(basename "$DIR_TO_BACK_UP").${DATESTAMP}.tgz"
+  umask 077 # Backups can contain sensitive info. Any files/folders we create should be private
+  tar --create --file "$TARFILE" --gzip --directory / "$DIR_WITHOUT_LEADING_SLASH"
+}
 
 main "$@"
