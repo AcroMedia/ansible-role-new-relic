@@ -102,7 +102,6 @@ function main () {
       find /etc/php -mindepth 4 -name newrelic.ini -path '*/conf.d/*' -delete
 
       # Add license key + app name to config files
-      set -x
       local PHP_VERSIONS
       PHP_VERSIONS=$(mktemp)
       find /etc/php -mindepth 1 -maxdepth 1 -type d -name '?.?' \( ! -name "$(printf "*\n*")" \) -exec basename {} \; > "$PHP_VERSIONS"
@@ -123,7 +122,6 @@ function main () {
       # Restart Web service
       [ -x /usr/sbin/nginx ] && service nginx restart
       [ -x /usr/sbin/apache2 ] && service apache2 restart
-      set +x
     else
       echo "Pass '--php' to install PHP application monitoring."
     fi
