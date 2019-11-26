@@ -2,7 +2,7 @@
 
 Install and configure New Relic PHP and/or Infrastructure agents.
 
-This role is just a pretty wrapper for a couple of bash scripts we were already using, and worked well enough that we didn't need to reinvent the wheel.
+This role is just a pretty wrapper for a couple of bash scripts we were already using, which worked well enough that we didn't need to reinvent the wheel.
 
 See https://docs.newrelic.com/docs/agents/php-agent/installation/php-agent-installation-overview
 and https://docs.newrelic.com/docs/infrastructure/install-configure-manage-infrastructure/linux-installation/install-infrastructure-linux-using-package-manager
