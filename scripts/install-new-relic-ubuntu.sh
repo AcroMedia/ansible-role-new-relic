@@ -140,13 +140,6 @@ function require_root() {
   fi
 }
 
-function require_script () {
-  type "$1" > /dev/null  2>&1 || {
-    err "The following is not installed or not in path: $1"
-    exit 1
-  }
-}
-
 function fatal () {
   bold_feedback "Fatal" "$@"
 }

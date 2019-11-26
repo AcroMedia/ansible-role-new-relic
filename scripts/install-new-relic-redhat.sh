@@ -14,11 +14,11 @@ function usage () {
 
 function main () {
 
-  # If you're missing optional-parameter-exists, install it with
+  # If you're missing optional_parameter_exists, install it with
   # git clone git@git.acromedia.com:acro/infrastructure.git
   # cd infrastructure/scripts
   # ./deploy.sh SERVER_NAME
-  require_script /usr/local/bin/optional-parameter-exists
+  require_script /usr/local/bin/optional_parameter_exists
   require_script /usr/local/bin/backdir
 
   test -e /etc/redhat-release || {
@@ -61,7 +61,7 @@ function main () {
 
 
   # Infrastructure
-  if /usr/local/bin/optional-parameter-exists "--infra" "$@"; then
+  if optional_parameter_exists "--infra" "$@"; then
 
     if rpm -qa |grep newrelic-infra; then
       echo "New Relic 'Infrastructure' is already installed."
@@ -95,7 +95,7 @@ function main () {
 
   # PHP agent
   if test -e /etc/php.d; then
-    if /usr/local/bin/optional-parameter-exists "--php" "$@"; then
+    if optional_parameter_exists "--php" "$@"; then
       if rpm -qa |grep newrelic-php5; then
         echo "NR PHP APM appears to already be installed."
       else
@@ -104,9 +104,9 @@ function main () {
         sed -i "s/newrelic.license = \"\"/newrelic.license = \"$NR_INSTALL_KEY\"/" /etc/php.d/newrelic.ini
         sed -i "s/newrelic.appname = \"PHP Application\"/newrelic.appname = \"$APPLICATION_NAME\"/" /etc/php.d/newrelic.ini
 
-        test -e /usr/sbin/php-fpm && /sbin/service php-fpm restart
-        test -e /usr/sbin/httpd && /sbin/service httpd restart
-        test -e /usr/sbin/nginx && /sbin/service nginx restart
+        test -x /usr/sbin/php-fpm && /sbin/service php-fpm restart
+        test -x /usr/sbin/httpd && /sbin/service httpd restart
+        test -x /usr/sbin/nginx && /sbin/service nginx restart
       fi
     else
       echo "Pass '--php' to install PHP application monitoring."
@@ -130,13 +130,6 @@ function require_root() {
     err "This script must be run as root."
     exit 1
   fi
-}
-
-function require_script () {
-  type "$1" > /dev/null  2>&1 || {
-    err "The following is not installed or not in path: $1"
-    exit 1
-  }
 }
 
 function fatal () {
@@ -174,6 +167,49 @@ function cerr () {
 
 BOLD=$(tput bold 2>/dev/null) || BOLD='' # Dont make noise if tput isn't available.
 UNBOLD=$(tput sgr0 2>/dev/null) || UNBOLD='' # Dont make noise if tput isn't available.
+
+
+readonly NEEDLE_FOUND=0
+readonly NEEDLE_NOT_FOUND=1
+readonly MISSING_HAYSTACK=2
+
+function optional_parameter_exists() {
+  if [[ $# -lt 1 ]]; then
+    fatal "Nevermind the haystack, I didn't even get the needle. Whoever called me did it the wrong way."
+    exit $MISSING_HAYSTACK
+  fi
+  if [[ $# -lt 2 ]]; then
+    warn "I received no haystack to look through."
+  fi
+  local PARAM_NAME_PATTERN=${1}; shift
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+      "${PARAM_NAME_PATTERN}")
+        return $NEEDLE_FOUND;
+        ;;
+      *)
+        # unknown / ignored option
+        true
+        ;;
+    esac
+    shift || break
+  done
+  return $NEEDLE_NOT_FOUND
+}
+
+function backdir () {
+  local DIR_TO_BACK_UP=$1
+  local DIR_WITHOUT_LEADING_SLASH
+  DIR_WITHOUT_LEADING_SLASH=$(echo "$DIR_TO_BACK_UP"| sed -e 's/^\///')
+  local ARCHIVEDIR=/var/backups
+  local DATESTAMP
+  DATESTAMP="$(date +%Y-%m-%d.%H%M%S.%3N)" || DATESTAMP="$(date +%Y-%m-%d.%H%M%S)"
+  local TARFILE
+  TARFILE="$ARCHIVEDIR/$(basename "$DIR_TO_BACK_UP").${DATESTAMP}.tgz"
+  umask 077 # Backups can contain sensitive info. Any files/folders we create should be private
+  tar --create --file "$TARFILE" --gzip --directory / "$DIR_WITHOUT_LEADING_SLASH"
+}
 
 
 main "$@"
