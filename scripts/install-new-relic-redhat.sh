@@ -14,13 +14,6 @@ function usage () {
 
 function main () {
 
-  # If you're missing optional_parameter_exists, install it with
-  # git clone git@git.acromedia.com:acro/infrastructure.git
-  # cd infrastructure/scripts
-  # ./deploy.sh SERVER_NAME
-  require_script /usr/local/bin/optional_parameter_exists
-  require_script /usr/local/bin/backdir
-
   test -e /etc/redhat-release || {
     err "This script is only for RHEL/CentOS servers."
     exit 1
