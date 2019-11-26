@@ -1,8 +1,9 @@
 ---
 # These are the extra parameters to pass in to the scripts.
-# --php      - Install PHP application monitoring
-# --infra    - Install 'Infrastructure' product (for Acro servers
-newrelic_extra_params: "--php --infra"
+# --php           - Install PHP application monitoring agent
+# --infra         - Install 'Infrastructure' agent
+# --php --infra   - Install both agents.
+newrelic_extra_params: ""
 
-# The new relic app name. App name requires quoted quotes if it contains spaces, ie "'My Sweet Server'"
-newrelic_app_name: "{{ ansible_fqdn }}"
+# The new relic app name
+newrelic_app_name: ""
