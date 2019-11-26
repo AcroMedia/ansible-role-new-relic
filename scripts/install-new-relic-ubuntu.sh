@@ -8,8 +8,11 @@ function usage () {
   echo "  --php      - Install PHP application monitoring"
   echo "  --infra    - Install 'Infrastructure' product"
   echo ""
-  echo "Example (deploying to a server; pay close attention - this is not a mistake): "
-  echo "  ssh SERVER \"sudo bash -s\" -- < ./install-new-relic.sh YOUR_LICENSE_KEY_HERE \"'App name requires quoted quotes if it contains spaces'\" --infra --php"
+  echo "Examples:"
+  echo "  Install locally: "
+  echo "    ./install-new-relic-OSFAMILY.sh LICENSE_KEY 'Quote app name if it contains spaces' --infra --php"
+  echo "  Install remotely over SSH: "
+  echo "    ssh SERVER \"sudo bash -s\" -- < ./install-new-relic-OSFAMILY.sh LICENSE_KEY \"'Nest-quote app name if installing over ssh'\" --infra --php"
 }
 
 function main () {
