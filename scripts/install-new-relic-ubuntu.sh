@@ -75,8 +75,16 @@ function main () {
       apt-get update
 
       # Set license key
-      test -f /etc/newrelic-infra.yml || touch /etc/newrelic-infra.yml
-      grep -q "$NR_INSTALL_KEY" /etc/newrelic-infra.yml || echo "license_key: $NR_INSTALL_KEY" >> /etc/newrelic-infra.yml
+      if [ -f /etc/newrelic-infra.yml ]; then
+        if grep -q "^license_key: $NR_INSTALL_KEY" /etc/newrelic-infra.yml; then
+          true # license key already exists.
+        else
+          cp -a /etc/newrelic-infra.yml "/etc/newrelic-infra.yml.$(date +%s)~"  # Back up whatever existed.
+          echo "license_key: $NR_INSTALL_KEY" > /etc/newrelic-infra.yml  # Rewrite the file ... there isn't normally anything else that lives in here.
+        fi
+      else
+        echo "license_key: $NR_INSTALL_KEY" > /etc/newrelic-infra.yml   # Create the file
+      fi
 
       # Install
       apt-get install newrelic-infra -y

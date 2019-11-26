@@ -64,9 +64,17 @@ function main () {
     else
 
       # Set license key
-      test -f /etc/newrelic-infra.yml || touch /etc/newrelic-infra.yml
-      grep -q "$NR_INSTALL_KEY" /etc/newrelic-infra.yml || echo "license_key: $NR_INSTALL_KEY" >> /etc/newrelic-infra.yml
-
+      if [ -f /etc/newrelic-infra.yml ]; then
+        if grep -q "^license_key: $NR_INSTALL_KEY" /etc/newrelic-infra.yml; then
+          true # license key already exists.
+        else
+          cp -a /etc/newrelic-infra.yml "/etc/newrelic-infra.yml.$(date +%s)~"  # Back up whatever existed.
+          echo "license_key: $NR_INSTALL_KEY" > /etc/newrelic-infra.yml  # Rewrite the file ... there isn't normally anything else that lives in here.
+        fi
+      else
+        echo "license_key: $NR_INSTALL_KEY" > /etc/newrelic-infra.yml   # Create the file
+      fi
+      
       # Repository
       if grep -q -i "release 6" /etc/redhat-release; then
         curl -o /etc/yum.repos.d/newrelic-infra.repo https://download.newrelic.com/infrastructure_agent/linux/yum/el/6/x86_64/newrelic-infra.repo
