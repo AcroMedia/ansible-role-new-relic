@@ -2,18 +2,24 @@
 
 Install and configure New Relic PHP and/or Infrastructure agents.
 
+This role is just a pretty wrapper for a couple of bash scripts we were already using, and worked well enough that we didn't need to reinvent the wheel.
+
+See https://docs.newrelic.com/docs/agents/php-agent/installation/php-agent-installation-overview
+and https://docs.newrelic.com/docs/infrastructure/install-configure-manage-infrastructure/linux-installation/install-infrastructure-linux-using-package-manager
+
 
 ## Requirements
 
 * Red Hat 6 or Ubuntu 16+
 
+
 ## Role Variables
 
-* `newrelic_extra_params`: These are the extra parameters to pass in to the scripts.
+* **newrelic_extra_params**: Required. Can be either `--php` (to install PHP APM), `--infra` (to install Infrastructure agent), or both. This variable is just forwarded to the scripts, and instructs the script which agents to install.
 
-* `newrelic_app_name`: The default app name for the server.
+* **newrelic_app_name**: Required. This is what name your servers show up as in New Relic APM. All servers that have the same name are grouped together into the same application in New Relic.
 
-* `newrelic_license_key`: Avoid committing this to your repository unless you've encrypted it with ansible vault first. You can pass it in on the command line as `--extra-vars='newrelic_license_key=XXXXXX'`.
+* **newrelic_license_key**: Required. Avoid committing this to your repository unless you've encrypted it with ansible vault first. You can pass it in on the command line as `--extra-vars='newrelic_license_key=XXXXXX'`.
 
 
 ## Dependencies
@@ -24,7 +30,6 @@ None.
 ## Example Playbook
 
     - hosts: servers
-      include_vars: {{ playbook_dir }}/secrets/my-gitignored-variables-file.yml
       roles:
          - role: acromedia.newrelic
            newrelic_extra_params: '--php --infra'
