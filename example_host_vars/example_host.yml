@@ -1,7 +1,0 @@
----
-# This is an example of what to include in the inventory/host_vars/<THE HOST>.yml file
-
-# The new relic license key. MAKE SURE TO NOT COMMIT THE ACTUAL LICENSE KEY. 
-# {{ newrelic_example_license }} should be a variable defined in ansible/secrets/newrelic.yml.
-# There is an example secrets file at example_secrets/example_newrelic.yml
-newrelic_license_key: "{{ newrelic_example_license }}"
