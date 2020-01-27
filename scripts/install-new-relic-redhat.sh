@@ -40,7 +40,7 @@ function main () {
 
 
   # Before we start,
-  /usr/local/bin/backdir /etc
+  backdir /etc
 
 
   # Does this really do anything?
