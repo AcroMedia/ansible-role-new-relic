@@ -222,6 +222,7 @@ function backdir () {
   local DIR_WITHOUT_LEADING_SLASH
   DIR_WITHOUT_LEADING_SLASH=$(echo "$DIR_TO_BACK_UP"| sed -e 's/^\///')
   local ARCHIVEDIR=/var/backups
+  (umask 077 && mkdir -pv "${ARCHIVEDIR}")
   local DATESTAMP
   DATESTAMP="$(date +%Y-%m-%d.%H%M%S.%3N)" || DATESTAMP="$(date +%Y-%m-%d.%H%M%S)"
   local TARFILE

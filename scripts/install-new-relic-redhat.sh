@@ -74,7 +74,7 @@ function main () {
       else
         echo "license_key: $NR_INSTALL_KEY" > /etc/newrelic-infra.yml   # Create the file
       fi
-      
+
       # Repository
       if grep -q -i "release 6" /etc/redhat-release; then
         curl -o /etc/yum.repos.d/newrelic-infra.repo https://download.newrelic.com/infrastructure_agent/linux/yum/el/6/x86_64/newrelic-infra.repo
@@ -207,6 +207,7 @@ function backdir () {
   local DIR_WITHOUT_LEADING_SLASH
   DIR_WITHOUT_LEADING_SLASH=$(echo "$DIR_TO_BACK_UP"| sed -e 's/^\///')
   local ARCHIVEDIR=/var/backups
+  (umask 077 && mkdir -pv "${ARCHIVEDIR}")
   local DATESTAMP
   DATESTAMP="$(date +%Y-%m-%d.%H%M%S.%3N)" || DATESTAMP="$(date +%Y-%m-%d.%H%M%S)"
   local TARFILE
