@@ -10,7 +10,7 @@ and https://docs.newrelic.com/docs/infrastructure/install-configure-manage-infra
 
 ## Requirements
 
-* Red Hat 6 or Ubuntu 16+
+* Red Hat 6+, or Ubuntu 16+. Also known to work with Amazon Linux and CentOS.
 
 
 ## Role Variables
