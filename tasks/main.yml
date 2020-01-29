@@ -26,7 +26,7 @@
   changed_when: command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
   when: ansible_os_family == 'Debian'
 
-- name: Install New Relic on Red Hat
+- name: Install New Relic on Red Hat / CentOS
   script: >
     {{ role_path}}/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
   args:
@@ -34,3 +34,14 @@
   register: command_result
   changed_when: command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
   when: ansible_os_family == 'RedHat'
+    and ansible_distribution != 'Amazon'
+
+- name: Install New Relic on Amazon Linux
+  script: >
+    {{ role_path}}/scripts/install-new-relic-amazon.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+  args:
+    executable: /bin/bash
+  register: command_result
+  changed_when: command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
+  when: ansible_os_family == 'RedHat'
+    and ansible_distribution == 'Amazon'

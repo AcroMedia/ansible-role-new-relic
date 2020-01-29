@@ -16,7 +16,10 @@ galaxy_info:
     - 6
     - 7
   - name: Amazon
+    # 2018 == Original amazon linux release, based on red hat 6
+    # 2 == Amazon linux 2, based on red hat 7
     versions:
-    - all
+    - 2018
+    - 2
   galaxy_tags: []
 dependencies: []
