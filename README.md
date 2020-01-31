@@ -7,6 +7,34 @@ This role is just a pretty wrapper for a couple of bash scripts we were already 
 See https://docs.newrelic.com/docs/agents/php-agent/installation/php-agent-installation-overview
 and https://docs.newrelic.com/docs/infrastructure/install-configure-manage-infrastructure/linux-installation/install-infrastructure-linux-using-package-manager
 
+## Molecule Setup
+
+- refer to setup instructions for basic test running: [molecule-setup](https://git.acromedia.com/mmccann/molecule-setup/blob/master/README.md)
+- after setting up your virtual environment and installing dependencies ...
+
+```bash
+$ TEST=true MOLECULE_DISTRO=ubuntu1604 molecule test --destroy=never
+```
+
+- ```TEST=true``` must be passed during tests to setup environment variables in ```vars/main-tset.yml```
+- log into the container and view changes
+
+```bash
+$ molecule login
+```
+
+__Variations of MOLECULE_DISTRO__ 
+    
+    ubuntu1604
+    ubuntu1804
+    
+    centos7
+
+__running the full test suite__
+
+```bash
+$ tox
+```
 
 ## Requirements
 

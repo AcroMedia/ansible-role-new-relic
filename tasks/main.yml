@@ -1,4 +1,8 @@
 ---
+- name: Include test variables
+  include_vars: "main-test.yml"
+  when: TEST
+
 - name: Make sure newrelic_license_key var has a value
   fail:
     msg: "'newrelic_license_key' is empty or undefined"
@@ -28,7 +32,7 @@
 
 - name: Install New Relic on Red Hat / CentOS
   script: >
-    {{ role_path}}/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+    {{ role_path }}/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
   args:
     executable: /bin/bash
   register: command_result
@@ -38,7 +42,7 @@
 
 - name: Install New Relic on Amazon Linux
   script: >
-    {{ role_path}}/scripts/install-new-relic-amazon.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+    {{ role_path }}/scripts/install-new-relic-amazon.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
   args:
     executable: /bin/bash
   register: command_result
