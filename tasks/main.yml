@@ -1,4 +1,6 @@
 ---
+- include_vars: "vars/{{ ansible_os_family }}.yml"
+
 - name: Make sure newrelic_license_key var has a value
   fail:
     msg: "'newrelic_license_key' is empty or undefined"
@@ -45,3 +47,42 @@
   changed_when: command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
   when: ansible_os_family == 'RedHat'
     and ansible_distribution == 'Amazon'
+
+- name: Enumerate newrelic.ini file locations
+  find:
+    paths: "{{ newrelic_php_ini_base_dir }}"
+    recurse: yes
+    patterns: 'newrelic.ini'
+  register: newrelic_ini_results
+
+- name: Update newrelic.appname in all instances of newrelic.ini. You will need to restart your application manually if this changes. It's beyond the ability / scope of this role to restart any php or web services.
+  ini_file:
+    backup: true
+    create: no
+    section: newrelic
+    option: newrelic.appname
+    path: "{{ item.path }}"
+    value: >-
+      "{{ newrelic_app_name }}"
+    state: present
+    mode: '0644'
+    owner: root
+    group: root
+  with_items: "{{ newrelic_ini_results.files }}"
+  notify: "{{ newrelic_notify }}"
+
+- name: Update newrelic.license in all instances of newrelic.ini. You will need to restart your application manually if this changes. It's beyond the ability / scope of this role to restart any php or web services.
+  ini_file:
+    backup: true
+    create: no
+    section: newrelic
+    option: newrelic.license
+    path: "{{ item.path }}"
+    value: >-
+      "{{ newrelic_license_key }}"
+    state: present
+    mode: '0644'
+    owner: root
+    group: root
+  with_items: "{{ newrelic_ini_results.files }}"
+  notify: "{{ newrelic_notify }}"
