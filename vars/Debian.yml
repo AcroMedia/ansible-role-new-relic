@@ -1,0 +1,2 @@
+---
+newrelic_php_ini_base_dir: /etc/php
