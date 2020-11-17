@@ -1,0 +1,17 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  vars:
+    - newrelic_license_key: 'oKG5x5DRIuxVeHvijFXZo2Bl0T7UZsN2hioWIdlp'
+    - newrelic_app_name: "test"
+    - newrelic_extra_params: '--php'
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=true cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+
+  roles:
+    - role: ansible-role-new-relic
