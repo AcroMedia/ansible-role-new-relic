@@ -4,6 +4,10 @@
   become: true
   gather_facts: true
   tasks:
+    - name: Gather package facts
+      package_facts:
+        manager: auto
+
     - assert:
         that: "'newrelic-php5' in ansible_facts.packages"
       when: "'php' in newrelic_extra_params
