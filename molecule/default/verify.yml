@@ -3,7 +3,6 @@
   hosts: all
   become: true
   gather_facts: true
-  vars_files: testvars.yml
   tasks:
     - assert:
         that: "'newrelic-php5' in ansible_facts.packages"
