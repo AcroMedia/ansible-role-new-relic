@@ -1,0 +1,4 @@
+---
+newrelic_license_key: 'oKG5x5DRIuxVeHvijFXZo2Bl0T7UZsN2hioWIdlp'
+newrelic_app_name: "test"
+newrelic_extra_params: '--php'

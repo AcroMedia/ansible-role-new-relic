@@ -1,0 +1,25 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Update yum cache
+      yum:
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Update apt cache
+      apt: 
+        update_cache: true 
+      when: ansible_os_family == 'Debian'
+
+    - name: Install packages that the role depnds on
+      package:
+        name:
+          - wget
+          - php
+          - dirmngr
+      when: ansible_os_family == 'Debian'
+

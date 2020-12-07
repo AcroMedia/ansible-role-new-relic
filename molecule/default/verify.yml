@@ -1,0 +1,26 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Gather package facts
+      package_facts:
+        manager: auto
+
+    - assert:
+        that: "'newrelic-php5' in ansible_facts.packages"
+      when: "'php' in newrelic_extra_params
+        and ansible_os_family == 'Debian'"
+
+    - name: Gather phpinfo
+      shell: php -i
+      register: phpinfo_result
+      when: "'php' in newrelic_extra_params"
+
+    - assert:
+        that: >
+          'newrelic.license => ' in phpinfo_result.stdout
+    - assert:
+        that: >
+          ('newrelic.appname => ' + newrelic_app_name) in phpinfo_result.stdout

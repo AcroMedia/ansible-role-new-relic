@@ -1,5 +1,7 @@
 # Ansible role: New Relic
 
+![.github/workflows/molecule.yml](https://github.com/AcroMedia/ansible-role-new-relic/workflows/.github/workflows/molecule.yml/badge.svg)
+
 Install and configure New Relic PHP and/or Infrastructure agents.
 
 This role is just a pretty wrapper for a couple of bash scripts we were already using, which worked well enough that we didn't need to reinvent the wheel.
