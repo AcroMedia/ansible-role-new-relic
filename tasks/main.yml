@@ -19,6 +19,12 @@
   when: newrelic_extra_params is undefined
     or newrelic_extra_params|trim == ''
 
+- name: Import php agent apt key
+  apt_key:
+    url: https://download.newrelic.com/548C16BF.gpg
+    state: present
+  when: ansible_os_family == 'Debian'
+
 - name: Install New Relic on Ubuntu
   script: >
     {{ role_path }}/scripts/install-new-relic-ubuntu.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
