@@ -25,13 +25,20 @@
     state: present
   when: ansible_os_family == 'Debian'
 
-- name: Install New Relic on Ubuntu
+- name: Install New Relic on Ubuntu (when it hasn't yet been installed)
   script: >
     {{ role_path }}/scripts/install-new-relic-ubuntu.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
   args:
     executable: /bin/bash
   register: command_result_ubuntu
   changed_when: false # command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
+  when: ansible_os_family == 'Debian'
+
+- name: Bring new relic up to date (debian)
+  apt:
+    name:
+      newrelic-php5
+    state: latest
   when: ansible_os_family == 'Debian'
 
 - name: Install New Relic on Red Hat / CentOS
