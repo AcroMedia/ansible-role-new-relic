@@ -23,12 +23,9 @@ and https://docs.newrelic.com/docs/infrastructure/install-configure-manage-infra
 
 * **newrelic_license_key** (string): Required. Avoid committing this to your repository unless you've encrypted it with ansible vault first. You can pass it in on the command line as `--extra-vars='newrelic_license_key=XXXXXX'`.
 
-* **newrelic_notify** (list): Optional, but recommended. A list of handlers from your own from playbook which would need to be called in order for the new relic agent(s) to pick up on any modified ini file values. If this isn't provided, it'll be up to you to restart your services manually, or by some other method. For example:
-```yaml
-newrelic_notify:
-  - restart php7.1-fpm
-  - restart nginx
-```
+* **newrelic_restart_services** (list): Optional, but recommended. A list of service names that need to be restarted in order for the new relic agent(s) to pick up on any modified ini file values. If this isn't provided, it'll be up to you to restart your services manually, or by some other method.
+
+* **newrelic_state**: Default: `present`. Set to `absent` to remove *all* new relic packages from the server and have it stop sending data.
 
 ## Dependencies
 
@@ -42,10 +39,9 @@ None.
   roles:
      - role: acromedia.newrelic
        newrelic_extra_params: '--php --infra'
-       newrelic_notify:
-        - restart php7.3-fpm
-        - restart nginx
-        - restart newrelic infra agent
+       newrelic_restart_services:
+        - php7.3-fpm
+        - nginx
        when: newrelic_license_key is defined
          and newrelic_license_key|trim != ''
 ```
