@@ -8,9 +8,6 @@ newrelic_extra_params: ""
 # The new relic app name
 newrelic_app_name: ""
 
-# A list of handlers to trigger if/when the new relic ini files are ever modified
-newrelic_notify: []
-
 # Install or remove new relic from the system.
 newrelic_state: present
 

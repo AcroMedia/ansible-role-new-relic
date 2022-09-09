@@ -80,7 +80,8 @@
     owner: root
     group: root
   with_items: "{{ newrelic_ini_results.files }}"
-  notify: "{{ newrelic_notify }}"
+  notify:
+    - newrelic restart services
 
 - name: Update newrelic.license in all instances of newrelic.ini. You will need to restart your application manually if this changes. It's beyond the ability / scope of this role to restart any php or web services.
   ini_file:
@@ -96,4 +97,5 @@
     owner: root
     group: root
   with_items: "{{ newrelic_ini_results.files }}"
-  notify: "{{ newrelic_notify }}"
+  notify:
+    - newrelic restart services
