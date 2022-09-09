@@ -1,0 +1,99 @@
+---
+- name: Make sure newrelic_license_key var has a value
+  fail:
+    msg: "'newrelic_license_key' is empty or undefined"
+  when: newrelic_license_key is undefined
+    or newrelic_license_key|trim == ''
+
+- name: Make sure newrelic_app_name var has a value
+  fail:
+    msg: "'newrelic_app_name' is empty or undefined"
+  when: newrelic_app_name is undefined
+    or newrelic_app_name|trim == ''
+
+- name: Make sure newrelic_extra_params var has a value
+  fail:
+    msg: newrelic_extra_params is empty or undefined
+  when: newrelic_extra_params is undefined
+    or newrelic_extra_params|trim == ''
+
+- name: Import php agent apt key
+  apt_key:
+    url: https://download.newrelic.com/548C16BF.gpg
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Install New Relic on Ubuntu (when it hasn't yet been installed)
+  script: >
+    {{ role_path }}/scripts/install-new-relic-ubuntu.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+  args:
+    executable: /bin/bash
+  register: command_result_ubuntu
+  changed_when: false # command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
+  when: ansible_os_family == 'Debian'
+
+- name: Bring new relic up to date (debian)
+  apt:
+    name:
+      newrelic-php5
+    state: latest
+  when: ansible_os_family == 'Debian'
+
+- name: Install New Relic on Red Hat / CentOS
+  script: >
+    {{ role_path}}/scripts/install-new-relic-redhat.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+  args:
+    executable: /bin/bash
+  register: command_result_redhat
+  changed_when: false # command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
+  when: ansible_os_family == 'RedHat'
+    and ansible_distribution != 'Amazon'
+
+- name: Install New Relic on Amazon Linux
+  script: >
+    {{ role_path}}/scripts/install-new-relic-amazon.sh {{ newrelic_license_key }} "{{ newrelic_app_name }}" {{ newrelic_extra_params }}
+  args:
+    executable: /bin/bash
+  register: command_result_amazon
+  changed_when: false # command_result is defined and ("'newly installed' in command_result.stdout or 'Setting up' in command_result.stdout")
+  when: ansible_os_family == 'RedHat'
+    and ansible_distribution == 'Amazon'
+
+- name: Enumerate newrelic.ini file locations
+  find:
+    paths: "{{ newrelic_php_ini_base_dir }}"
+    recurse: yes
+    patterns: 'newrelic.ini'
+  register: newrelic_ini_results
+
+- name: Update newrelic.appname in all instances of newrelic.ini. You will need to restart your application manually if this changes. It's beyond the ability / scope of this role to restart any php or web services.
+  ini_file:
+    backup: true
+    create: no
+    section: newrelic
+    option: newrelic.appname
+    path: "{{ item.path }}"
+    value: >-
+      "{{ newrelic_app_name }}"
+    state: present
+    mode: '0644'
+    owner: root
+    group: root
+  with_items: "{{ newrelic_ini_results.files }}"
+  notify: "{{ newrelic_notify }}"
+
+- name: Update newrelic.license in all instances of newrelic.ini. You will need to restart your application manually if this changes. It's beyond the ability / scope of this role to restart any php or web services.
+  ini_file:
+    backup: true
+    create: no
+    section: newrelic
+    option: newrelic.license
+    path: "{{ item.path }}"
+    value: >-
+      "{{ newrelic_license_key }}"
+    state: present
+    mode: '0644'
+    owner: root
+    group: root
+  with_items: "{{ newrelic_ini_results.files }}"
+  notify: "{{ newrelic_notify }}"

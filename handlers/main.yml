@@ -1,0 +1,6 @@
+---
+- name: newrelic restart services
+  service:
+    name: "{{ item }}"
+    state: restarted
+  with_items: "{{ newrelic_restart_services }}"
