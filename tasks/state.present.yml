@@ -66,6 +66,16 @@
     patterns: 'newrelic.ini'
   register: newrelic_ini_results
 
+
+- name: Make sure new relic service is started and enabled
+  service:
+    name: newrelic-daemon
+    state: started
+    enabled: true
+  tags: newrelic.service
+  notify:
+    - newrelic restart services
+
 - name: Update newrelic.appname in all instances of newrelic.ini. You will need to restart your application manually if this changes. It's beyond the ability / scope of this role to restart any php or web services.
   ini_file:
     backup: true
