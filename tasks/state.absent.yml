@@ -1,18 +1,22 @@
 ---
-- name: Remove New Relic from Ubuntu
+- name: Remove New Relic from Ubuntu. If new relic is already removed,
+    this task will fail because of the asterisk, so errors are ignored for it.
   apt:
     name:
       - newrelic*
     state: absent
     purge: true
   when: ansible_os_family == 'Debian'
+  ignore_errors: true
   notify:
     - newrelic restart services
 
-- name: Remove New Relic from Red Hat / CentOS / Amazon Linux
+- name: Remove New Relic from Red Hat / CentOS / Amazon Linux. If new relic is already removed,
+    this task will fail because of the asterisk, so errors are ignored for it.
   yum:
     name:
       - newrelic-*
   when: ansible_os_family == 'RedHat'
+  ignore_errors: true
   notify:
     - newrelic restart services
